@@ -31,6 +31,7 @@ type Regression struct {
 	Formula           string
 	crosses           []featureCross
 	hasRun            bool
+	residual_sum_of_squares float64
 }
 
 type dataPoint struct {
@@ -233,13 +234,19 @@ func (r *Regression) calcPredicted() string {
 	observations := len(r.data)
 	var predicted float64
 	var output string
+	r.residual_sum_of_squares = 0.0
 	for i := 0; i < observations; i++ {
 		r.data[i].Predicted, _ = r.Predict(r.data[i].Variables)
 		r.data[i].Error = r.data[i].Predicted - r.data[i].Observed
+		r.residual_sum_of_squares += r.data[i].Error * r.data[i].Error
 
 		output += fmt.Sprintf("%v. observed = %v, Predicted = %v, Error = %v", i, r.data[i].Observed, predicted, r.data[i].Error)
 	}
 	return output
+}
+
+func (r *Regression) GetResidualSumOfSquares() float64 {
+	return r.residual_sum_of_squares
 }
 
 func (r *Regression) calcVariance() string {
